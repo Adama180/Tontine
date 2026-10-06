@@ -1,0 +1,226 @@
+/* Theme de l'application : modifiez les couleurs ici (vert fonce #166534, or #d4a017). */
+
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+}
+
+.fond {
+    -fx-background-color: linear-gradient(to bottom right, #0f3d22, #166534 60%, #1f7a44);
+    -fx-padding: 24;
+}
+
+.page {
+    -fx-background-color: #f3f5f2;
+}
+
+.defilement, .defilement > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+/* ---------- barre du haut ---------- */
+.navbar {
+    -fx-background-color: white;
+    -fx-padding: 14 28 14 28;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0, 0, 2);
+}
+
+.logo-rond { -fx-fill: #d4a017; }
+.logo-lettre { -fx-text-fill: #0f3d22; -fx-font-weight: bold; -fx-font-size: 16px; }
+.logo-texte { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
+.logo-texte-clair { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white; }
+
+/* ---------- bandeau d'accueil ---------- */
+.hero {
+    -fx-background-color: linear-gradient(to bottom right, #0f3d22, #166534);
+    -fx-padding: 60 40 60 40;
+}
+.hero-titre { -fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold; }
+.hero-texte { -fx-text-fill: #d1e7d8; -fx-font-size: 16px; }
+
+/* ---------- boutons ---------- */
+.btn-primaire, .btn-or, .btn-contour, .btn-contour-clair {
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 10 22 10 22;
+    -fx-cursor: hand;
+}
+.btn-primaire { -fx-background-color: #166534; -fx-text-fill: white; }
+.btn-primaire:hover { -fx-background-color: #0f3d22; }
+.btn-or { -fx-background-color: #d4a017; -fx-text-fill: #1f2937; }
+.btn-or:hover { -fx-background-color: #b88a12; }
+.btn-contour { -fx-background-color: transparent; -fx-border-color: #166534; -fx-text-fill: #166534; }
+.btn-contour:hover { -fx-background-color: #e8f3ec; }
+.btn-contour-clair { -fx-background-color: transparent; -fx-border-color: white; -fx-text-fill: white; }
+.btn-contour-clair:hover { -fx-background-color: rgba(255,255,255,0.15); }
+
+.hyperlink { -fx-text-fill: #166534; }
+
+/* ---------- cartes et textes ---------- */
+.carte {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 28;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 4);
+}
+.titre { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
+.carte-titre { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
+.carte-titre-or { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #b88a12; }
+.sous-titre { -fx-text-fill: #6b7280; }
+.champ-label { -fx-font-weight: bold; -fx-text-fill: #374151; -fx-font-size: 12px; }
+.pied { -fx-text-fill: #9ca3af; -fx-font-size: 12px; }
+
+/* ---------- champs ---------- */
+.text-field, .password-field {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+    -fx-padding: 9 12 9 12;
+}
+.text-field:focused, .password-field:focused { -fx-border-color: #166534; }
+
+.message-erreur {
+    -fx-text-fill: #b91c1c;
+    -fx-background-color: #fee2e2;
+    -fx-background-radius: 8;
+    -fx-padding: 9 12 9 12;
+}
+.message-succes {
+    -fx-text-fill: #166534;
+    -fx-background-color: #dcfce7;
+    -fx-background-radius: 8;
+    -fx-padding: 9 12 9 12;
+}
+
+/* ---------- espace connecte ---------- */
+.sidebar { -fx-background-color: #0f3d22; -fx-padding: 22 14 22 14; }
+.sidebar-nom { -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; }
+.sidebar-info { -fx-text-fill: #9fc9ae; -fx-font-size: 12px; }
+.badge {
+    -fx-background-color: #d4a017;
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 20;
+    -fx-padding: 2 10 2 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d1e7d8;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.menu-btn:hover { -fx-background-color: rgba(255,255,255,0.10); }
+.menu-btn-actif, .menu-btn-actif:hover {
+    -fx-background-color: #166534;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.entete-page {
+    -fx-background-color: white;
+    -fx-padding: 16 30 16 30;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+.ligne-liste {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 16 20 16 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+}
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 18 20 18 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+}
+.stat-valeur { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #166534; }
+.stat-libelle { -fx-font-size: 12px; -fx-text-fill: #6b7280; }
+
+/* ================= Partie 5b ================= */
+.badge-type {
+    -fx-background-color: #e8f3ec;
+    -fx-text-fill: #166534;
+    -fx-background-radius: 20;
+    -fx-padding: 3 12 3 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.badge-statut {
+    -fx-background-radius: 20;
+    -fx-padding: 4 14 4 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.statut-attente  { -fx-background-color: #fef3c7; -fx-text-fill: #92400e; }
+.statut-acceptee { -fx-background-color: #dcfce7; -fx-text-fill: #166534; }
+.statut-refusee  { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
+
+.combo-box, .choice-box {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+    -fx-padding: 3 4 3 4;
+}
+.combo-box:focused, .choice-box:focused { -fx-border-color: #166534; }
+
+.lien-notif { -fx-text-fill: #6b7280; }
+.lien-notif-actif { -fx-text-fill: #b88a12; -fx-font-weight: bold; }
+
+.notif-nonlue { -fx-border-color: #d4a017; -fx-border-width: 0 0 0 4; -fx-border-radius: 12; }
+.notif-lue { -fx-opacity: 0.85; }
+.notif-texte { -fx-font-weight: bold; -fx-text-fill: #1f2937; }
+.notif-texte-lue { -fx-text-fill: #4b5563; }
+
+/* ================= Partie 5c ================= */
+.statut-rembourse { -fx-background-color: #dbeafe; -fx-text-fill: #1e40af; }
+
+.puce {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 7 18 7 18;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.puce:hover { -fx-border-color: #166534; }
+.puce:selected { -fx-background-color: #166534; -fx-border-color: #166534; -fx-text-fill: white; }
+
+.tab-pane > .tab-header-area > .tab-header-background { -fx-background-color: transparent; }
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 8 16 8 16;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 2 0;
+}
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-border-color: transparent transparent #166534 transparent;
+    -fx-border-width: 0 0 3 0;
+}
+.tab .tab-label { -fx-text-fill: #6b7280; -fx-font-weight: bold; -fx-font-size: 14px; }
+.tab:selected .tab-label { -fx-text-fill: #166534; }
+.tab-pane > .tab-content-area { -fx-padding: 16 0 0 0; }
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator { -fx-border-color: transparent; }
+
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+}
+.table-view .column-header-background { -fx-background-color: #f3f5f2; -fx-background-radius: 12 12 0 0; }
+.table-view .column-header, .table-view .filler { -fx-background-color: transparent; -fx-size: 40px; }
+.table-view .column-header .label { -fx-text-fill: #374151; -fx-font-weight: bold; }
+.table-row-cell { -fx-cell-size: 38px; }
+.table-row-cell:selected { -fx-background-color: #e8f3ec; }
+.table-row-cell:selected .table-cell { -fx-text-fill: #0f3d22; }

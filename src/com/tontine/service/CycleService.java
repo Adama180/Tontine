@@ -1,0 +1,362 @@
+package com.tontine.service;
+
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.tontine.dao.AdhesionDao;
+import com.tontine.dao.CycleDao;
+import com.tontine.dao.DemandeTourAnticipeDao;
+import com.tontine.dao.DistributionDao;
+import com.tontine.dao.PretDao;
+import com.tontine.dao.TirageDao;
+import com.tontine.dao.TontineDao;
+import com.tontine.dao.TransactionDao;
+import com.tontine.dao.UtilisateurDao;
+import com.tontine.model.Adhesion;
+import com.tontine.model.Cycle;
+import com.tontine.model.DemandeTourAnticipe;
+import com.tontine.model.Distribution;
+import com.tontine.model.StatutAdhesion;
+import com.tontine.model.StatutDemande;
+import com.tontine.model.StatutPret;
+import com.tontine.model.StatutTontine;
+import com.tontine.model.StatutTransaction;
+import com.tontine.model.Tirage;
+import com.tontine.model.Tontine;
+import com.tontine.model.Transaction;
+import com.tontine.model.TypeTransaction;
+import com.tontine.model.Utilisateur;
+
+/**
+ * Cycles, versements, tour de role et tirage au sort.
+ * Fonds commun : un cycle dure jusqu'a sa cloture ; chacun recoit sa cotisation cumulee + une part egale
+ * des interets et penalites. Tour de role / tirage au sort : un cycle = une periode ; le beneficiaire
+ * recoit le total collecte (cotisations + penalites) ; quand tous ont recu, un nouveau tour recommence.
+ */
+public class CycleService {
+
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private final AdhesionDao adhesionDao = new AdhesionDao();
+    private final CycleDao cycleDao = new CycleDao();
+    private final DistributionDao distributionDao = new DistributionDao();
+    private final TirageDao tirageDao = new TirageDao();
+    private final TontineDao tontineDao = new TontineDao();
+    private final TransactionDao transactionDao = new TransactionDao();
+    private final PretDao pretDao = new PretDao();
+    private final UtilisateurDao utilisateurDao = new UtilisateurDao();
+    private final DemandeTourAnticipeDao tourAnticipeDao = new DemandeTourAnticipeDao();
+
+    // ---------------------------------------------------------------- cycles
+
+    public Cycle demarrerCycle(int gerantId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerGerant(t, gerantId);
+        Controles.exiger(t.getStatut() == StatutTontine.ACTIVE, "Cette tontine est cloturee.");
+        Controles.exiger(cycleDao.findEnCours(tontineId) == null, "Un cycle est deja en cours.");
+        Controles.exiger(adhesionDao.compterActifs(tontineId) >= 2,
+                "Il faut au moins 2 membres actifs pour demarrer un cycle.");
+        if (t.isFondsCommun()) {
+            Controles.exiger(t.getTauxInteret() != null && t.getDureeMaxPret() != null,
+                    "Definissez d'abord le taux d'interet et la duree maximale des prets (parametres de la tontine).");
+        }
+
+        Cycle c = new Cycle();
+        c.setTontineId(tontineId);
+        c.setNumero(cycleDao.dernierNumero(tontineId) + 1);
+        c.setDateDebut(LocalDate.now());
+        cycleDao.insert(c);
+
+        NotificationService.notifierMembres(tontineId, "Le cycle " + c.getNumero() + " de la tontine "
+                + t.getNom() + " a demarre. Pensez a cotiser !", "CYCLE", null);
+        Controles.audit(gerantId, "CYCLE_DEMARRE", "Tontine " + t.getNom() + " - cycle " + c.getNumero());
+        return c;
+    }
+
+    /** Cloture le cycle en cours et verse les sommes dues. Retourne les versements effectues. */
+    public List<Distribution> cloturerCycle(int gerantId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerGerant(t, gerantId);
+        Cycle c = Controles.cycleEnCours(t);
+        for (Transaction tx : transactionDao.findByCycle(c.getId())) {
+            Controles.exiger(tx.getStatut() != StatutTransaction.EN_ATTENTE,
+                    "Des paiements en especes attendent encore votre confirmation.");
+        }
+        List<Distribution> versements = t.isFondsCommun() ? cloturerFondsCommun(t, c) : cloturerTourEnCours(t, c);
+        cycleDao.cloturer(c.getId(), LocalDate.now());
+        NotificationService.notifierMembres(tontineId, "Le cycle " + c.getNumero() + " de la tontine "
+                + t.getNom() + " est cloture.", "CYCLE", null);
+        Controles.audit(gerantId, "CYCLE_CLOTURE", "Tontine " + t.getNom() + " - cycle " + c.getNumero());
+        return versements;
+    }
+
+    public List<Cycle> listerCycles(int userId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerParticipant(t, userId);
+        return cycleDao.findByTontine(tontineId);
+    }
+
+    public List<Distribution> listerVersements(int userId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerParticipant(t, userId);
+        return distributionDao.findByTontine(tontineId);
+    }
+
+    // ---------------------------------------------------------------- tour de role
+
+    /** Prochain beneficiaire d'une tontine a tour de role. */
+    public Utilisateur prochainBeneficiaire(int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exiger(t.isTourDeRole(), "Cette tontine n'est pas a tour de role.");
+        List<Adhesion> ordre = adhesionDao.findByTontineOrdreTour(tontineId);
+        Controles.exiger(!ordre.isEmpty(), "Aucun membre actif.");
+        return utilisateurDao.findById(ordre.get(t.getTourActuelIndex() % ordre.size()).getUserId());
+    }
+
+    public DemandeTourAnticipe demanderTourAnticipe(int userId, int tontineId, String motif) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exiger(t.isTourDeRole(), "Le tour anticipe n'existe que dans les tontines a tour de role.");
+        Controles.adhesionActive(tontineId, userId);
+        Controles.exiger(motif != null && !motif.trim().isEmpty(), "Indiquez le motif de votre demande.");
+        for (DemandeTourAnticipe d : tourAnticipeDao.findByUser(userId)) {
+            Controles.exiger(d.getTontineId() != tontineId || d.getStatut() != StatutDemande.EN_ATTENTE,
+                    "Vous avez deja une demande de tour anticipe en attente.");
+        }
+        DemandeTourAnticipe d = new DemandeTourAnticipe();
+        d.setTontineId(tontineId);
+        d.setUserId(userId);
+        d.setMotif(motif.trim());
+        tourAnticipeDao.insert(d);
+        NotificationService.notifier(t.getGerantId(), "Demande de tour anticipe de "
+                + Controles.utilisateur(userId).getNomComplet() + " (tontine " + t.getNom() + ").", "TOUR");
+        return d;
+    }
+
+    public List<DemandeTourAnticipe> demandesTourAnticipe(int gerantId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerGerant(t, gerantId);
+        return tourAnticipeDao.findByTontineEtStatut(tontineId, StatutDemande.EN_ATTENTE);
+    }
+
+    /**
+     * Accepte ou refuse un tour anticipe : le membre prend la place du prochain beneficiaire
+     * (echange d'ordre). Entre deux cycles uniquement, et pas si le membre a deja recu dans ce tour.
+     */
+    public void traiterDemandeTourAnticipe(int gerantId, int demandeId, boolean accepter) {
+        DemandeTourAnticipe d = tourAnticipeDao.findById(demandeId);
+        Controles.exiger(d != null && d.getStatut() == StatutDemande.EN_ATTENTE, "Demande introuvable ou deja traitee.");
+        Tontine t = Controles.tontine(d.getTontineId());
+        Controles.exigerGerant(t, gerantId);
+
+        if (accepter) {
+            Controles.exiger(cycleDao.findEnCours(t.getId()) == null,
+                    "Traitez cette demande entre deux cycles (apres la cloture du cycle en cours).");
+            List<Adhesion> ordre = adhesionDao.findByTontineOrdreTour(t.getId());
+            int index = t.getTourActuelIndex() % Math.max(1, ordre.size());
+            int position = -1;
+            for (int i = 0; i < ordre.size(); i++) {
+                if (ordre.get(i).getUserId() == d.getUserId()) {
+                    position = i;
+                }
+            }
+            Controles.exiger(position >= 0, "Ce membre n'est plus actif.");
+            Controles.exiger(position >= index, "Ce membre a deja recu son tour dans ce tour de role.");
+            if (position != index) {
+                Adhesion suivant = ordre.get(index);
+                Adhesion demandeur = ordre.get(position);
+                Integer ordreSuivant = suivant.getOrdreTour();
+                adhesionDao.definirOrdreTour(suivant.getId(), demandeur.getOrdreTour());
+                adhesionDao.definirOrdreTour(demandeur.getId(), ordreSuivant);
+            }
+        }
+        tourAnticipeDao.changerStatut(d.getId(), accepter ? StatutDemande.ACCEPTEE : StatutDemande.REFUSEE);
+        NotificationService.notifier(d.getUserId(), "Votre demande de tour anticipe a ete "
+                + (accepter ? "acceptee." : "refusee."), "TOUR");
+        Controles.audit(gerantId, accepter ? "TOUR_ANTICIPE_ACCEPTE" : "TOUR_ANTICIPE_REFUSE",
+                "Demande " + d.getId() + " - tontine " + t.getNom());
+    }
+
+    // ---------------------------------------------------------------- tirage au sort
+
+    /** Tire au sort le beneficiaire du cycle en cours parmi les membres pas encore tires dans ce tour. */
+    public Tirage lancerTirage(int gerantId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerGerant(t, gerantId);
+        Controles.exiger(t.isTirageAuSort(), "Cette tontine n'est pas a tirage au sort.");
+        Cycle c = Controles.cycleEnCours(t);
+        for (Tirage deja : tirageDao.findByTontine(tontineId)) {
+            Controles.exiger(deja.getSemaine() != c.getNumero(),
+                    "Le tirage de ce cycle a deja eu lieu : son resultat ne peut pas etre refait.");
+        }
+
+        List<Adhesion> actifs = actifs(tontineId);
+        Set<Integer> dejaTires = tiresDansLeTourEnCours(t, c);
+        List<Adhesion> eligibles = new ArrayList<>();
+        for (Adhesion a : actifs) {
+            if (!dejaTires.contains(a.getUserId())) {
+                eligibles.add(a);
+            }
+        }
+        if (eligibles.isEmpty()) { // tout le monde a deja ete tire : nouveau tour
+            tontineDao.changerTourActuel(tontineId, 0);
+            eligibles = actifs;
+        }
+        Adhesion gagnant = eligibles.get(RANDOM.nextInt(eligibles.size()));
+
+        Tirage tirage = new Tirage();
+        tirage.setTontineId(tontineId);
+        tirage.setSemaine(c.getNumero());
+        tirage.setBeneficiaireId(gagnant.getUserId());
+        tirageDao.insert(tirage);
+
+        Utilisateur u = utilisateurDao.findById(gagnant.getUserId());
+        NotificationService.notifierMembres(tontineId, "Tirage au sort du cycle " + c.getNumero() + " : "
+                + u.getNomComplet() + " recevra la cagnotte (tontine " + t.getNom() + ").", "TIRAGE", null);
+        Controles.audit(gerantId, "TIRAGE_AU_SORT", "Tontine " + t.getNom() + " - cycle " + c.getNumero()
+                + " - gagnant " + u.getNomComplet());
+        return tirage;
+    }
+
+    public List<Tirage> listerTirages(int userId, int tontineId) {
+        Tontine t = Controles.tontine(tontineId);
+        Controles.exigerParticipant(t, userId);
+        return tirageDao.findByTontine(tontineId);
+    }
+
+    // ---------------------------------------------------------------- cloture : fonds commun
+
+    private List<Distribution> cloturerFondsCommun(Tontine t, Cycle c) {
+        Controles.exiger(pretDao.findByTontineEtStatut(t.getId(), StatutPret.EN_ATTENTE).isEmpty()
+                && pretDao.findByTontineEtStatut(t.getId(), StatutPret.ACCORDE).isEmpty(),
+                "Des prets sont encore en attente ou non rembourses : le cycle ne peut pas etre cloture.");
+
+        double rembourse = transactionDao.totalParTypeEtCycle(c.getId(), TypeTransaction.REMBOURSEMENT);
+        double prete = transactionDao.totalParTypeEtCycle(c.getId(), TypeTransaction.PRET);
+        double penalites = transactionDao.totalParTypeEtCycle(c.getId(), TypeTransaction.PENALITE);
+        double pot = Controles.arrondir(Math.max(0, rembourse - prete) + penalites); // interets + penalites
+
+        List<Adhesion> actifs = actifs(t.getId());
+        double partEgale = actifs.isEmpty() ? 0 : Math.floor(pot * 100.0 / actifs.size()) / 100.0;
+        double reste = pot;
+        int restants = actifs.size();
+
+        List<Distribution> versements = new ArrayList<>();
+        for (Adhesion a : adhesionDao.findByTontine(t.getId())) {
+            boolean actif = a.getStatut() == StatutAdhesion.ACTIF;
+            double part = 0;
+            if (actif) {
+                restants--;
+                part = restants == 0 ? Controles.arrondir(reste) : partEgale; // le dernier recoit l'arrondi
+                reste = Controles.arrondir(reste - part);
+            }
+            double montant = Controles.arrondir(Math.max(0, a.getSolde()) + part);
+            if (montant > 0) {
+                versements.add(verser(t, c, a.getUserId(), montant));
+            }
+            if (a.getSolde() != 0) {
+                adhesionDao.ajouterAuSolde(a.getId(), -a.getSolde());
+            }
+        }
+        return versements;
+    }
+
+    // ---------------------------------------------------------------- cloture : tour de role / tirage
+
+    private List<Distribution> cloturerTourEnCours(Tontine t, Cycle c) {
+        int beneficiaireId;
+        if (t.isTourDeRole()) {
+            beneficiaireId = prochainBeneficiaire(t.getId()).getId();
+        } else {
+            Integer trouve = null;
+            for (Tirage ti : tirageDao.findByTontine(t.getId())) {
+                if (ti.getSemaine() == c.getNumero()) {
+                    trouve = ti.getBeneficiaireId();
+                }
+            }
+            Controles.exiger(trouve != null, "Lancez d'abord le tirage au sort de ce cycle.");
+            beneficiaireId = trouve;
+        }
+
+        double pot = Controles.arrondir(transactionDao.totalParTypeEtCycle(c.getId(), TypeTransaction.COTISATION)
+                + transactionDao.totalParTypeEtCycle(c.getId(), TypeTransaction.PENALITE));
+        Controles.exiger(pot > 0, "Aucune cotisation n'a ete collectee dans ce cycle.");
+
+        // chacun a "consomme" sa cotisation du cycle : son solde diminue d'autant
+        Map<Integer, Double> cotise = new HashMap<>();
+        for (Transaction tx : transactionDao.findByCycle(c.getId())) {
+            if (tx.getType() == TypeTransaction.COTISATION && tx.getStatut() == StatutTransaction.CONFIRMEE) {
+                cotise.merge(tx.getUserId(), tx.getMontant(), Double::sum);
+            }
+        }
+        for (Adhesion a : adhesionDao.findByTontine(t.getId())) {
+            Double somme = cotise.get(a.getUserId());
+            if (somme != null) {
+                adhesionDao.ajouterAuSolde(a.getId(), -somme);
+            }
+        }
+
+        List<Distribution> versements = new ArrayList<>();
+        versements.add(verser(t, c, beneficiaireId, pot));
+
+        int suivant = t.getTourActuelIndex() + 1;
+        tontineDao.changerTourActuel(t.getId(), suivant >= adhesionDao.compterActifs(t.getId()) ? 0 : suivant);
+        return versements;
+    }
+
+    // ---------------------------------------------------------------- outils
+
+    /** Enregistre un versement : ligne de distribution + transaction + notification au beneficiaire. */
+    private Distribution verser(Tontine t, Cycle c, int beneficiaireId, double montant) {
+        Distribution d = new Distribution();
+        d.setCycleId(c.getId());
+        d.setBeneficiaireId(beneficiaireId);
+        d.setMontantTotal(montant);
+        distributionDao.insert(d);
+
+        Transaction tx = new Transaction();
+        tx.setTontineId(t.getId());
+        tx.setUserId(beneficiaireId);
+        tx.setCycleId(c.getId());
+        tx.setType(TypeTransaction.DISTRIBUTION);
+        tx.setMontant(montant);
+        tx.setStatut(StatutTransaction.CONFIRMEE);
+        tx.setReference("DIST-" + d.getId());
+        transactionDao.insert(tx);
+
+        NotificationService.notifier(beneficiaireId, "Vous recevez la cagnotte : " + Format.montant(montant)
+                + " (tontine " + t.getNom() + ", cycle " + c.getNumero() + ").", "VERSEMENT");
+        return d;
+    }
+
+    private List<Adhesion> actifs(int tontineId) {
+        List<Adhesion> liste = new ArrayList<>();
+        for (Adhesion a : adhesionDao.findByTontine(tontineId)) {
+            if (a.getStatut() == StatutAdhesion.ACTIF) {
+                liste.add(a);
+            }
+        }
+        return liste;
+    }
+
+    /** Beneficiaires deja tires dans le tour en cours : les derniers tirages (hors cycle courant). */
+    private Set<Integer> tiresDansLeTourEnCours(Tontine t, Cycle c) {
+        List<Tirage> passes = new ArrayList<>();
+        for (Tirage ti : tirageDao.findByTontine(t.getId())) {
+            if (ti.getSemaine() < c.getNumero()) {
+                passes.add(ti);
+            }
+        }
+        int n = Math.min(t.getTourActuelIndex(), passes.size());
+        Set<Integer> ids = new HashSet<>();
+        for (Tirage ti : passes.subList(passes.size() - n, passes.size())) {
+            ids.add(ti.getBeneficiaireId());
+        }
+        return ids;
+    }
+}
