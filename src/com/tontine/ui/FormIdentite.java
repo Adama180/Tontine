@@ -2,11 +2,11 @@ package com.tontine.ui;
 
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
-/** Formulaire d'identite d'un visiteur : nom, prenom, email, telephone, mot de passe. */
-public class FormIdentite extends GridPane {
+/** Formulaire d'identite d'un visiteur. Deux colonnes si la place le permet, une seule sinon. */
+public class FormIdentite extends FlowPane {
 
     private final TextField nom = new TextField();
     private final TextField prenom = new TextField();
@@ -16,20 +16,21 @@ public class FormIdentite extends GridPane {
     private final PasswordField confirmation = new PasswordField();
 
     public FormIdentite() {
-        setHgap(16);
-        setVgap(14);
+        super(16, 14);
         email.setPromptText("exemple@mail.com");
         telephone.setPromptText("77 000 00 00");
         motDePasse.setPromptText("6 caract\u00e8res minimum");
-        ColumnConstraints moitie = new ColumnConstraints();
-        moitie.setPercentWidth(50);
-        getColumnConstraints().addAll(moitie, moitie);
-        add(Composants.champ("Nom", nom), 0, 0);
-        add(Composants.champ("Pr\u00e9nom", prenom), 1, 0);
-        add(Composants.champ("Email", email), 0, 1);
-        add(Composants.champ("T\u00e9l\u00e9phone", telephone), 1, 1);
-        add(Composants.champ("Mot de passe", motDePasse), 0, 2);
-        add(Composants.champ("Confirmer le mot de passe", confirmation), 1, 2);
+        getChildren().addAll(
+                colonne("Nom", nom), colonne("Pr\u00e9nom", prenom),
+                colonne("Email", email), colonne("T\u00e9l\u00e9phone", telephone),
+                colonne("Mot de passe", motDePasse), colonne("Confirmer le mot de passe", confirmation));
+    }
+
+    private VBox colonne(String libelle, javafx.scene.Node saisie) {
+        VBox v = Composants.champ(libelle, saisie);
+        v.setPrefWidth(290);
+        v.setMinWidth(200);
+        return v;
     }
 
     public String getNom() { return nom.getText(); }

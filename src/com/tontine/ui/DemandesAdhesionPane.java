@@ -11,6 +11,7 @@ import com.tontine.model.Utilisateur;
 import com.tontine.service.AdhesionService;
 import com.tontine.service.ConsultationService;
 
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -43,8 +44,10 @@ public class DemandesAdhesionPane extends PaneGestion {
             String empreinte = d.getPieceHash() == null ? "" : d.getPieceHash().substring(0, Math.min(12, d.getPieceHash().length())) + "...";
             VBox infos = texte(d.getNom(), d.getTelephone() + " - " + d.getEmail() + " - envoy\u00e9e le " + Aff.date(d.getDateEnvoi())
                     + "\nPi\u00e8ce d'identit\u00e9 : empreinte " + empreinte);
+            String identite = d.getNom() + " - " + d.getTelephone() + " - " + d.getEmail();
+            Node vignette = VisionneusePiece.vignette(d.getPieceChemin(), d.getNom(), "Demandeur : " + identite, this::erreur);
             Button voir = Composants.contour("Voir la pi\u00e8ce");
-            voir.setOnAction(e -> ouvrirPiece(d.getPieceChemin()));
+            voir.setOnAction(e -> VisionneusePiece.voir(d.getPieceChemin(), d.getNom(), "Demandeur : " + identite, this::erreur));
             Button accepter = Composants.primaire("Accepter");
             accepter.setOnAction(e -> action(() -> {
                 if (Nav.confirmer("Accepter " + d.getNom() + " dans la tontine ?")) {
@@ -59,7 +62,7 @@ public class DemandesAdhesionPane extends PaneGestion {
                     succes("La demande de " + d.getNom() + " a \u00e9t\u00e9 refus\u00e9e.");
                 }
             }));
-            getChildren().add(ligne(infos, voir, refuser, accepter));
+            getChildren().add(ligne(infos, vignette, voir, refuser, accepter));
         }
 
         // ---- demandes deja traitees
@@ -75,7 +78,4 @@ public class DemandesAdhesionPane extends PaneGestion {
         }
     }
 
-    private void ouvrirPiece(String chemin) {
-        Fichiers.ouvrir(chemin, this::erreur);
-    }
 }

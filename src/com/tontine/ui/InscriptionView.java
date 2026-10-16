@@ -2,14 +2,13 @@ package com.tontine.ui;
 
 import com.tontine.service.AuthService;
 
-import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -19,8 +18,6 @@ public class InscriptionView extends StackPane {
     private final AuthService auth = new AuthService();
 
     public InscriptionView() {
-        getStyleClass().add("fond");
-
         TextField nom = new TextField();
         TextField prenom = new TextField();
         TextField email = new TextField();
@@ -31,18 +28,10 @@ public class InscriptionView extends StackPane {
         mdp.setPromptText("6 caract\u00e8res minimum");
         PasswordField confirmation = new PasswordField();
 
-        GridPane grille = new GridPane();
-        grille.setHgap(16);
-        grille.setVgap(14);
-        ColumnConstraints moitie = new ColumnConstraints();
-        moitie.setPercentWidth(50);
-        grille.getColumnConstraints().addAll(moitie, moitie);
-        grille.add(Composants.champ("Nom", nom), 0, 0);
-        grille.add(Composants.champ("Pr\u00e9nom", prenom), 1, 0);
-        grille.add(Composants.champ("Email", email), 0, 1);
-        grille.add(Composants.champ("T\u00e9l\u00e9phone", telephone), 1, 1);
-        grille.add(Composants.champ("Mot de passe", mdp), 0, 2);
-        grille.add(Composants.champ("Confirmer le mot de passe", confirmation), 1, 2);
+        FlowPane grille = new FlowPane(16, 14,
+                colonne("Nom", nom), colonne("Pr\u00e9nom", prenom),
+                colonne("Email", email), colonne("T\u00e9l\u00e9phone", telephone),
+                colonne("Mot de passe", mdp), colonne("Confirmer le mot de passe", confirmation));
 
         Label message = Composants.message();
         Button valider = Composants.primaire("Cr\u00e9er mon compte");
@@ -67,20 +56,28 @@ public class InscriptionView extends StackPane {
         Hyperlink retour = new Hyperlink("\u2190 Retour \u00e0 l'accueil");
         retour.setOnAction(e -> Nav.aller(new AccueilView()));
 
-        VBox carte = Composants.carte(
-                Composants.logo(false),
-                Composants.titre("Cr\u00e9er un compte"),
-                Composants.sousTitre("Votre compte est g\u00e9r\u00e9 une seule fois : vous pourrez ensuite demander \u00e0 rejoindre "
+        Node logo = Composants.logo(false);
+        VBox carte = new VBox(14, logo, Composants.titre("Cr\u00e9er un compte"),
+                Composants.sousTitre("Votre compte est cr\u00e9\u00e9 une seule fois : vous pourrez ensuite demander \u00e0 rejoindre "
                         + "une ou plusieurs tontines, ou en cr\u00e9er une."),
-                message,
-                grille,
-                valider,
-                connexion,
-                retour);
-        carte.setMaxWidth(660);
+                message, grille, valider, connexion, retour);
+        carte.getStyleClass().add("auth-carte");
+        carte.setMaxWidth(680);
         carte.setMaxHeight(VBox.USE_PREF_SIZE);
-        getChildren().add(carte);
-        StackPane.setAlignment(carte, Pos.CENTER);
+
+        VBox marque = PanneauMarque.creer("Rejoignez la plateforme.",
+                "Un seul compte pour toutes vos tontines : membre dans l'une, g\u00e9rant dans une autre.",
+                "Inscription en une minute", "Explorer les tontines sans engagement",
+                "Vos donn\u00e9es prot\u00e9g\u00e9es : mot de passe chiffr\u00e9");
+        ConnexionView.assembler(this, marque, carte, logo);
+        Effets.apparition(carte, 0);
         javafx.application.Platform.runLater(nom::requestFocus);
+    }
+
+    private VBox colonne(String libelle, Node saisie) {
+        VBox v = Composants.champ(libelle, saisie);
+        v.setPrefWidth(300);
+        v.setMinWidth(200);
+        return v;
     }
 }

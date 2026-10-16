@@ -89,12 +89,14 @@ public class ExplorerPane extends VBox {
             affichees++;
         }
         if (affichees == 0) {
-            Label vide = new Label(liste.isEmpty()
+            cartes.getChildren().add(Composants.etatVide("recherche", "Aucune tontine \u00e0 afficher", liste.isEmpty()
                     ? "Aucune tontine n'est encore ouverte. Vous pouvez cr\u00e9er la premi\u00e8re !"
-                    : "Aucune tontine ne correspond \u00e0 votre recherche.");
-            vide.getStyleClass().add("sous-titre");
-            cartes.getChildren().add(Composants.carte(vide));
+                    : "Aucune tontine ne correspond \u00e0 votre recherche."));
         }
+    }
+
+    private static String classeType(TypeTontine type) {
+        return type == TypeTontine.FONDS_COMMUN ? "type-fonds" : type == TypeTontine.TOUR_DE_ROLE ? "type-tour" : "type-tirage";
     }
 
     private VBox carte(Tontine t) {
@@ -109,6 +111,8 @@ public class ExplorerPane extends VBox {
         Button voir = Composants.primaire("Voir les r\u00e8gles");
         voir.setOnAction(e -> fenetre.afficher(t.getNom(), new DetailTontineView(utilisateur, fenetre, t)));
         VBox c = Composants.carte(nom, Aff.badge(Libelles.type(t.getType())), cotisation, places, voir);
+        c.getStyleClass().addAll("carte-survol", classeType(t.getType()));
+        Effets.survol(c);
         c.setPrefWidth(300);
         c.setMinWidth(260);
         HBox.setHgrow(c, Priority.NEVER);

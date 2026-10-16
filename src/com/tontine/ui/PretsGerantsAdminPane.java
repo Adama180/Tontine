@@ -34,7 +34,7 @@ public class PretsGerantsAdminPane extends PaneGestion {
         ConsultationService consultation = new ConsultationService();
         List<Pret> attente = service.pretsGerantsEnAttente(admin.getId());
 
-        getChildren().add(vide("Un gerant ne peut jamais valider son propre pr\u00eat : c'est vous qui d\u00e9cidez. "
+        getChildren().add(vide("Un g\u00e9rant ne peut jamais valider son propre pr\u00eat : c'est vous qui d\u00e9cidez. "
                 + "Tout pr\u00eat accord\u00e9 devient visible par tous les membres de la tontine."));
         getChildren().add(titreSection("Pr\u00eats de g\u00e9rants \u00e0 valider (" + attente.size() + ")"));
         if (attente.isEmpty()) {

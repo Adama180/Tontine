@@ -2,12 +2,9 @@ package com.tontine.ui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
@@ -18,20 +15,7 @@ public class PagePublique extends BorderPane implements Fenetre {
 
     public PagePublique() {
         getStyleClass().add("page");
-
-        Node logo = Composants.logo(false);
-        logo.setCursor(Cursor.HAND);
-        logo.setOnMouseClicked(e -> Nav.aller(new AccueilView()));
-        Button explorer = Composants.contour("Explorer les tontines");
-        explorer.setOnAction(e -> Nav.aller(PagePublique.explorer()));
-        Button connexion = Composants.contour("Se connecter");
-        connexion.setOnAction(e -> Nav.aller(new ConnexionView(null)));
-        Button inscription = Composants.primaire("Cr\u00e9er un compte");
-        inscription.setOnAction(e -> Nav.aller(new InscriptionView()));
-        HBox barre = new HBox(12, logo, Composants.espaceur(), explorer, connexion, inscription);
-        barre.setAlignment(Pos.CENTER_LEFT);
-        barre.getStyleClass().add("navbar");
-        setTop(barre);
+        setTop(new BarreNavigation());
 
         zone.setAlignment(Pos.TOP_CENTER);
         zone.setPadding(new Insets(30, 40, 40, 40));
@@ -39,6 +23,10 @@ public class PagePublique extends BorderPane implements Fenetre {
         defilement.setFitToWidth(true);
         defilement.getStyleClass().add("defilement");
         setCenter(defilement);
+        Adaptatif.surLargeur(this, 760, etroit -> {
+            Adaptatif.classeCompact(this, etroit);
+            zone.setPadding(etroit ? new Insets(16, 14, 24, 14) : new Insets(30, 40, 40, 40));
+        });
     }
 
     @Override
@@ -47,6 +35,7 @@ public class PagePublique extends BorderPane implements Fenetre {
             ((Region) contenu).setMaxWidth(1000);
         }
         zone.getChildren().setAll(contenu);
+        Effets.fondu(contenu);
     }
 
     public static PagePublique explorer() {

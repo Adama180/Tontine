@@ -1,187 +1,335 @@
-/* Theme de l'application : modifiez les couleurs ici (vert fonce #166534, or #d4a017). */
+/* =====================================================================
+   NAT Tontines - theme de l'application
+   Les couleurs et la police se changent ICI, en haut du fichier (section "Jetons de design").
+   ===================================================================== */
 
+/* ------------------------------ Jetons de design ------------------------------ */
 .root {
-    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -c-vert-900: #0b2e1b;
+    -c-vert-800: #0f3d22;
+    -c-vert-700: #14532d;
+    -c-vert-600: #166534;
+    -c-vert-500: #1f7a44;
+    -c-vert-300: #86c9a0;
+    -c-vert-100: #dcfce7;
+    -c-vert-50:  #f0f9f3;
+    -c-or:       #d4a017;
+    -c-or-fonce: #b88a12;
+    -c-or-clair: #fdf1cc;
+    -c-teal:     #0f766e;
+    -c-teal-clair: #ccfbf1;
+    -c-texte:    #1f2937;
+    -c-gris:     #6b7280;
+    -c-gris-clair: #9ca3af;
+    -c-bordure:  #e5e7eb;
+    -c-fond:     #f4f6f3;
+    -c-rouge:    #b91c1c;
+    -c-rouge-clair: #fee2e2;
+
+    -fx-font-family: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 14px;
+    -fx-text-fill: -c-texte;
 }
 
+.label { -fx-text-fill: -c-texte; }
+
+/* ------------------------------ Fonds ------------------------------ */
 .fond {
-    -fx-background-color: linear-gradient(to bottom right, #0f3d22, #166534 60%, #1f7a44);
-    -fx-padding: 24;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -c-vert-900 0%, -c-vert-700 55%, -c-vert-500 100%);
 }
-
-.page {
-    -fx-background-color: #f3f5f2;
-}
+.page { -fx-background-color: -c-fond; }
 
 .defilement, .defilement > .viewport {
     -fx-background-color: transparent;
     -fx-background: transparent;
 }
+.scroll-pane { -fx-padding: 0; -fx-background-insets: 0; }
+.scroll-pane:focused { -fx-background-insets: 0; }
+.scroll-bar:vertical, .scroll-bar:horizontal { -fx-background-color: transparent; -fx-padding: 2; }
+.scroll-bar:vertical { -fx-pref-width: 12; }
+.scroll-bar:horizontal { -fx-pref-height: 12; }
+.scroll-bar .thumb { -fx-background-color: #c5d0c9; -fx-background-radius: 8; -fx-background-insets: 0; }
+.scroll-bar .thumb:hover { -fx-background-color: #9fb3a6; }
+.scroll-bar .track { -fx-background-color: transparent; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button { -fx-padding: 0; -fx-pref-height: 0; -fx-pref-width: 0; }
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow { -fx-padding: 0; -fx-shape: ""; }
+.corner { -fx-background-color: transparent; }
 
-/* ---------- barre du haut ---------- */
+.icone { -fx-fill: -c-vert-600; }
+
+/* ------------------------------ Logo ------------------------------ */
+.logo-rond { -fx-fill: linear-gradient(from 0% 0% to 100% 100%, #f1c94a, -c-or); }
+.logo-lettre { -fx-text-fill: -c-vert-900; -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-font-size: 16px; }
+.logo-texte { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 19px; -fx-text-fill: -c-vert-800; }
+.logo-texte-clair { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 19px; -fx-text-fill: white; }
+
+/* ------------------------------ Barre de navigation ------------------------------ */
 .navbar {
-    -fx-background-color: white;
-    -fx-padding: 14 28 14 28;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0, 0, 2);
+    -fx-background-color: rgba(255,255,255,0.96);
+    -fx-padding: 12 32 12 32;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.10), 14, 0, 0, 2);
 }
+.compact .navbar { -fx-padding: 10 16 10 16; }
 
-.logo-rond { -fx-fill: #d4a017; }
-.logo-lettre { -fx-text-fill: #0f3d22; -fx-font-weight: bold; -fx-font-size: 16px; }
-.logo-texte { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
-.logo-texte-clair { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white; }
-
-/* ---------- bandeau d'accueil ---------- */
+/* ------------------------------ Bandeau d'accueil ------------------------------ */
 .hero {
-    -fx-background-color: linear-gradient(to bottom right, #0f3d22, #166534);
-    -fx-padding: 60 40 60 40;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -c-vert-900 0%, -c-vert-700 60%, -c-vert-500 100%);
 }
-.hero-titre { -fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold; }
-.hero-texte { -fx-text-fill: #d1e7d8; -fx-font-size: 16px; }
+.hero-contenu { -fx-padding: 56 48 84 48; }
+.compact .hero-contenu { -fx-padding: 32 20 64 20; }
+.hero-titre {
+    -fx-font-family: "Poppins Bold", "Poppins", sans-serif;
+    -fx-text-fill: white;
+    -fx-font-size: 42px;
+    -fx-line-spacing: 2;
+}
+.hero-titre-accent {
+    -fx-font-family: "Poppins Bold", "Poppins", sans-serif;
+    -fx-text-fill: #f1c94a;
+    -fx-font-size: 42px;
+}
+.compact .hero-titre, .compact .hero-titre-accent { -fx-font-size: 28px; }
+.hero-texte { -fx-text-fill: #d6ecdd; -fx-font-size: 16px; -fx-line-spacing: 3; }
+.compact .hero-texte { -fx-font-size: 14px; }
+.hero-puce {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(255,255,255,0.25);
+    -fx-border-radius: 20;
+    -fx-padding: 5 14 5 14;
+}
+.hero-puce .label { -fx-text-fill: #e9f7ee; -fx-font-size: 12px; }
+.hero-point .label { -fx-text-fill: #d6ecdd; -fx-font-size: 13px; }
+.icone-claire { -fx-fill: #f1c94a; }
 
-/* ---------- boutons ---------- */
-.btn-primaire, .btn-or, .btn-contour, .btn-contour-clair {
-    -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+/* ------------------------------ Boutons ------------------------------ */
+.btn-primaire, .btn-or, .btn-contour, .btn-contour-clair, .btn-icone {
+    -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
     -fx-padding: 10 22 10 22;
     -fx-cursor: hand;
 }
-.btn-primaire { -fx-background-color: #166534; -fx-text-fill: white; }
-.btn-primaire:hover { -fx-background-color: #0f3d22; }
-.btn-or { -fx-background-color: #d4a017; -fx-text-fill: #1f2937; }
-.btn-or:hover { -fx-background-color: #b88a12; }
-.btn-contour { -fx-background-color: transparent; -fx-border-color: #166534; -fx-text-fill: #166534; }
-.btn-contour:hover { -fx-background-color: #e8f3ec; }
-.btn-contour-clair { -fx-background-color: transparent; -fx-border-color: white; -fx-text-fill: white; }
-.btn-contour-clair:hover { -fx-background-color: rgba(255,255,255,0.15); }
+.btn-primaire {
+    -fx-background-color: linear-gradient(to bottom, -c-vert-500, -c-vert-600);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(22,101,52,0.30), 8, 0, 0, 3);
+}
+.btn-primaire:hover { -fx-background-color: linear-gradient(to bottom, -c-vert-600, -c-vert-700); -fx-effect: dropshadow(gaussian, rgba(22,101,52,0.45), 12, 0, 0, 4); }
+.btn-primaire:pressed { -fx-scale-x: 0.98; -fx-scale-y: 0.98; }
+.btn-primaire:disabled { -fx-background-color: #b6c4bb; -fx-effect: none; -fx-opacity: 1; }
+.btn-primaire:disabled .label, .btn-primaire:disabled { -fx-text-fill: white; }
 
-.hyperlink { -fx-text-fill: #166534; }
+.btn-or {
+    -fx-background-color: linear-gradient(to bottom, #f1c94a, -c-or);
+    -fx-text-fill: -c-vert-900;
+    -fx-effect: dropshadow(gaussian, rgba(184,138,18,0.35), 8, 0, 0, 3);
+}
+.btn-or:hover { -fx-background-color: linear-gradient(to bottom, -c-or, -c-or-fonce); }
+.btn-or:pressed { -fx-scale-x: 0.98; -fx-scale-y: 0.98; }
+.btn-or:disabled { -fx-opacity: 0.5; }
 
-/* ---------- cartes et textes ---------- */
+.btn-contour { -fx-background-color: transparent; -fx-border-color: -c-vert-600; -fx-text-fill: -c-vert-600; }
+.btn-contour:hover { -fx-background-color: -c-vert-50; }
+.btn-contour:pressed { -fx-scale-x: 0.98; -fx-scale-y: 0.98; }
+.btn-contour:disabled { -fx-opacity: 0.45; }
+
+.btn-contour-clair { -fx-background-color: rgba(255,255,255,0.06); -fx-border-color: rgba(255,255,255,0.7); -fx-text-fill: white; }
+.btn-contour-clair:hover { -fx-background-color: rgba(255,255,255,0.18); }
+
+.btn-icone { -fx-background-color: white; -fx-border-color: -c-bordure; -fx-padding: 8 10 8 10; }
+.btn-icone:hover { -fx-background-color: -c-vert-50; }
+
+.hyperlink { -fx-text-fill: -c-vert-600; -fx-font-family: "Poppins Medium", "Poppins", sans-serif; }
+.hyperlink:hover { -fx-text-fill: -c-vert-800; -fx-underline: true; }
+
+/* ------------------------------ Cartes et textes ------------------------------ */
 .carte {
     -fx-background-color: white;
-    -fx-background-radius: 14;
+    -fx-background-radius: 16;
     -fx-padding: 28;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.10), 22, 0, 0, 6);
 }
-.titre { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
-.carte-titre { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #0f3d22; }
-.carte-titre-or { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #b88a12; }
-.sous-titre { -fx-text-fill: #6b7280; }
-.champ-label { -fx-font-weight: bold; -fx-text-fill: #374151; -fx-font-size: 12px; }
-.pied { -fx-text-fill: #9ca3af; -fx-font-size: 12px; }
+.compact .carte { -fx-padding: 18; }
+.carte-survol:hover { -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.20), 28, 0, 0, 10); }
 
-/* ---------- champs ---------- */
+.titre { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 24px; -fx-text-fill: -c-vert-800; }
+.compact .titre { -fx-font-size: 20px; }
+.section-titre { -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-font-size: 28px; -fx-text-fill: -c-vert-800; }
+.compact .section-titre { -fx-font-size: 22px; }
+.section-sous { -fx-text-fill: -c-gris; -fx-font-size: 15px; -fx-line-spacing: 2; }
+.carte-titre { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 16px; -fx-text-fill: -c-vert-800; }
+.carte-titre-or { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 16px; -fx-text-fill: -c-or-fonce; }
+.sous-titre { -fx-text-fill: -c-gris; }
+.champ-label { -fx-font-family: "Poppins Medium", "Poppins", sans-serif; -fx-text-fill: #374151; -fx-font-size: 12px; }
+.pied { -fx-text-fill: -c-gris-clair; -fx-font-size: 12px; }
+
+/* ------------------------------ Champs ------------------------------ */
 .text-field, .password-field {
     -fx-background-color: white;
-    -fx-background-radius: 8;
+    -fx-background-radius: 10;
     -fx-border-color: #d1d5db;
-    -fx-border-radius: 8;
-    -fx-padding: 9 12 9 12;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14 10 14;
+    -fx-prompt-text-fill: -c-gris-clair;
 }
-.text-field:focused, .password-field:focused { -fx-border-color: #166534; }
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -c-vert-600;
+    -fx-effect: dropshadow(gaussian, rgba(22,101,52,0.28), 8, 0, 0, 0);
+}
+.text-field:disabled, .password-field:disabled { -fx-opacity: 0.6; }
+
+.combo-box, .choice-box {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 10;
+    -fx-padding: 4 6 4 6;
+}
+.combo-box:focused, .choice-box:focused { -fx-border-color: -c-vert-600; }
+.combo-box .arrow, .choice-box .open-button .arrow { -fx-background-color: -c-vert-600; }
+.combo-box-popup .list-view, .context-menu { -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: -c-bordure; }
+.list-cell:filled:hover, .menu-item:focused { -fx-background-color: -c-vert-50; }
+.list-cell:filled:selected { -fx-background-color: -c-vert-100; -fx-text-fill: -c-vert-800; }
 
 .message-erreur {
-    -fx-text-fill: #b91c1c;
-    -fx-background-color: #fee2e2;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12 9 12;
+    -fx-text-fill: -c-rouge;
+    -fx-background-color: -c-rouge-clair;
+    -fx-background-radius: 10;
+    -fx-border-color: #f5b5b5;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14 10 14;
 }
 .message-succes {
-    -fx-text-fill: #166534;
-    -fx-background-color: #dcfce7;
-    -fx-background-radius: 8;
-    -fx-padding: 9 12 9 12;
+    -fx-text-fill: -c-vert-700;
+    -fx-background-color: -c-vert-100;
+    -fx-background-radius: 10;
+    -fx-border-color: #a8e0bb;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14 10 14;
 }
 
-/* ---------- espace connecte ---------- */
-.sidebar { -fx-background-color: #0f3d22; -fx-padding: 22 14 22 14; }
-.sidebar-nom { -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; }
-.sidebar-info { -fx-text-fill: #9fc9ae; -fx-font-size: 12px; }
+/* ------------------------------ Espace connecte : barre laterale ------------------------------ */
+.sidebar { -fx-background-color: linear-gradient(to bottom, -c-vert-800, -c-vert-900); -fx-padding: 22 14 22 14; }
+.sidebar-nom { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-text-fill: white; -fx-font-size: 14px; }
+.sidebar-nom .label, .sidebar-nom { -fx-text-fill: white; }
+.sidebar-info { -fx-text-fill: #9fc9ae; -fx-font-size: 11px; }
+.sidebar-profil {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-background-radius: 14;
+    -fx-padding: 12;
+}
 .badge {
-    -fx-background-color: #d4a017;
-    -fx-text-fill: #1f2937;
+    -fx-background-color: -c-or;
+    -fx-text-fill: -c-vert-900;
     -fx-background-radius: 20;
     -fx-padding: 2 10 2 10;
     -fx-font-size: 11px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif;
 }
 .menu-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #d1e7d8;
+    -fx-text-fill: #cfe6d7;
     -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10 14 10 14;
-    -fx-background-radius: 8;
+    -fx-graphic-text-gap: 12;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 10;
     -fx-cursor: hand;
 }
-.menu-btn:hover { -fx-background-color: rgba(255,255,255,0.10); }
+.menu-btn .icone { -fx-fill: #9fc9ae; }
+.menu-btn:hover { -fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; }
+.menu-btn:hover .icone { -fx-fill: white; }
 .menu-btn-actif, .menu-btn-actif:hover {
-    -fx-background-color: #166534;
+    -fx-background-color: linear-gradient(to right, -c-vert-500, -c-vert-600);
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0, 0, 2);
 }
+.menu-btn-actif .icone, .menu-btn-actif:hover .icone { -fx-fill: #f1c94a; }
+
 .entete-page {
     -fx-background-color: white;
-    -fx-padding: 16 30 16 30;
-    -fx-border-color: #e5e7eb;
+    -fx-padding: 14 30 14 30;
+    -fx-border-color: -c-bordure;
     -fx-border-width: 0 0 1 0;
 }
+.compact .entete-page { -fx-padding: 10 14 10 14; }
+.lien-notif { -fx-text-fill: -c-gris; -fx-font-size: 13px; }
+.lien-notif .icone { -fx-fill: -c-gris; }
+.lien-notif-actif { -fx-text-fill: -c-or-fonce; -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; }
+.lien-notif-actif .icone { -fx-fill: -c-or; }
+
+/* ------------------------------ Avatar ------------------------------ */
+.avatar-lettre { -fx-text-fill: white; -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 13px; }
+
+/* ------------------------------ Bandeau de bienvenue / etats vides ------------------------------ */
+.banniere {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -c-vert-800 0%, -c-vert-600 100%);
+    -fx-background-radius: 18;
+    -fx-padding: 26 30 26 30;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.25), 18, 0, 0, 6);
+}
+.banniere-titre { -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-text-fill: white; -fx-font-size: 22px; }
+.banniere-texte { -fx-text-fill: #d6ecdd; }
+.compact .banniere { -fx-padding: 18; }
+.compact .banniere-titre { -fx-font-size: 18px; }
+
+.etat-vide { -fx-background-color: white; -fx-background-radius: 16; -fx-padding: 34; -fx-border-color: -c-bordure; -fx-border-radius: 16; -fx-border-style: dashed; }
+.icone-rond { -fx-background-color: -c-vert-100; -fx-background-radius: 40; -fx-padding: 14; }
+.icone-rond-or { -fx-background-color: -c-or-clair; -fx-background-radius: 40; -fx-padding: 14; }
+.icone-rond-teal { -fx-background-color: -c-teal-clair; -fx-background-radius: 40; -fx-padding: 14; }
+.icone-or { -fx-fill: -c-or-fonce; }
+.icone-teal { -fx-fill: -c-teal; }
+
+/* ------------------------------ Listes, badges, statistiques ------------------------------ */
 .ligne-liste {
     -fx-background-color: white;
-    -fx-background-radius: 12;
+    -fx-background-radius: 14;
     -fx-padding: 16 20 16 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.07), 10, 0, 0, 2);
 }
-.stat-card {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 18 20 18 20;
-    -fx-border-color: #e5e7eb;
-    -fx-border-radius: 12;
-}
-.stat-valeur { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #166534; }
-.stat-libelle { -fx-font-size: 12px; -fx-text-fill: #6b7280; }
+.ligne-liste:hover { -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.16), 16, 0, 0, 4); }
+.compact .ligne-liste { -fx-padding: 12 14 12 14; }
 
-/* ================= Partie 5b ================= */
 .badge-type {
-    -fx-background-color: #e8f3ec;
-    -fx-text-fill: #166534;
+    -fx-background-color: -c-vert-100;
+    -fx-text-fill: -c-vert-700;
     -fx-background-radius: 20;
     -fx-padding: 3 12 3 12;
     -fx-font-size: 12px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif;
 }
 .badge-statut {
     -fx-background-radius: 20;
     -fx-padding: 4 14 4 14;
     -fx-font-size: 12px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif;
 }
-.statut-attente  { -fx-background-color: #fef3c7; -fx-text-fill: #92400e; }
-.statut-acceptee { -fx-background-color: #dcfce7; -fx-text-fill: #166534; }
-.statut-refusee  { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
-
-.combo-box, .choice-box {
-    -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: #d1d5db;
-    -fx-border-radius: 8;
-    -fx-padding: 3 4 3 4;
-}
-.combo-box:focused, .choice-box:focused { -fx-border-color: #166534; }
-
-.lien-notif { -fx-text-fill: #6b7280; }
-.lien-notif-actif { -fx-text-fill: #b88a12; -fx-font-weight: bold; }
-
-.notif-nonlue { -fx-border-color: #d4a017; -fx-border-width: 0 0 0 4; -fx-border-radius: 12; }
-.notif-lue { -fx-opacity: 0.85; }
-.notif-texte { -fx-font-weight: bold; -fx-text-fill: #1f2937; }
-.notif-texte-lue { -fx-text-fill: #4b5563; }
-
-/* ================= Partie 5c ================= */
+.statut-attente   { -fx-background-color: #fef3c7; -fx-text-fill: #92400e; }
+.statut-acceptee  { -fx-background-color: #dcfce7; -fx-text-fill: #166534; }
+.statut-refusee   { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
 .statut-rembourse { -fx-background-color: #dbeafe; -fx-text-fill: #1e40af; }
 
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 18 20 18 20;
+    -fx-border-color: -c-bordure -c-bordure -c-bordure -c-vert-600;
+    -fx-border-width: 1 1 1 4;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.06), 8, 0, 0, 2);
+}
+.stat-card-or { -fx-border-color: -c-bordure -c-bordure -c-bordure -c-or; }
+.stat-card-teal { -fx-border-color: -c-bordure -c-bordure -c-bordure -c-teal; }
+.stat-valeur { -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-font-size: 22px; -fx-text-fill: -c-vert-600; }
+.stat-libelle { -fx-font-size: 12px; -fx-text-fill: -c-gris; }
+
+.notif-nonlue { -fx-border-color: -c-or; -fx-border-width: 0 0 0 4; -fx-border-radius: 14; }
+.notif-lue { -fx-opacity: 0.85; }
+.notif-texte { -fx-font-family: "Poppins Medium", "Poppins", sans-serif; -fx-text-fill: -c-texte; }
+.notif-texte-lue { -fx-text-fill: #4b5563; }
+
+/* ------------------------------ Puces (choix) et onglets ------------------------------ */
 .puce {
     -fx-background-color: white;
     -fx-border-color: #d1d5db;
@@ -189,38 +337,112 @@
     -fx-background-radius: 20;
     -fx-padding: 7 18 7 18;
     -fx-text-fill: #374151;
-    -fx-font-weight: bold;
+    -fx-font-family: "Poppins Medium", "Poppins", sans-serif;
     -fx-cursor: hand;
 }
-.puce:hover { -fx-border-color: #166534; }
-.puce:selected { -fx-background-color: #166534; -fx-border-color: #166534; -fx-text-fill: white; }
+.puce:hover { -fx-border-color: -c-vert-600; }
+.puce:selected { -fx-background-color: -c-vert-600; -fx-border-color: -c-vert-600; -fx-text-fill: white; }
 
 .tab-pane > .tab-header-area > .tab-header-background { -fx-background-color: transparent; }
 .tab-pane > .tab-header-area > .headers-region > .tab {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 8 16 8 16;
-    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-color: transparent transparent -c-bordure transparent;
     -fx-border-width: 0 0 2 0;
+    -fx-cursor: hand;
 }
+.tab-pane > .tab-header-area > .headers-region > .tab:hover { -fx-background-color: rgba(22,101,52,0.05); }
 .tab-pane > .tab-header-area > .headers-region > .tab:selected {
-    -fx-border-color: transparent transparent #166534 transparent;
+    -fx-border-color: transparent transparent -c-vert-600 transparent;
     -fx-border-width: 0 0 3 0;
 }
-.tab .tab-label { -fx-text-fill: #6b7280; -fx-font-weight: bold; -fx-font-size: 14px; }
-.tab:selected .tab-label { -fx-text-fill: #166534; }
+.tab .tab-label { -fx-text-fill: -c-gris; -fx-font-family: "Poppins Medium", "Poppins", sans-serif; -fx-font-size: 14px; }
+.tab:selected .tab-label { -fx-text-fill: -c-vert-600; -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; }
 .tab-pane > .tab-content-area { -fx-padding: 16 0 0 0; }
 .tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator { -fx-border-color: transparent; }
+.tab-pane > .tab-header-area > .tab-header-background { -fx-opacity: 0; }
 
+/* ------------------------------ Tableaux ------------------------------ */
 .table-view {
     -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-border-color: #e5e7eb;
-    -fx-border-radius: 12;
+    -fx-background-radius: 14;
+    -fx-border-color: -c-bordure;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.06), 8, 0, 0, 2);
 }
-.table-view .column-header-background { -fx-background-color: #f3f5f2; -fx-background-radius: 12 12 0 0; }
-.table-view .column-header, .table-view .filler { -fx-background-color: transparent; -fx-size: 40px; }
-.table-view .column-header .label { -fx-text-fill: #374151; -fx-font-weight: bold; }
-.table-row-cell { -fx-cell-size: 38px; }
-.table-row-cell:selected { -fx-background-color: #e8f3ec; }
-.table-row-cell:selected .table-cell { -fx-text-fill: #0f3d22; }
+.table-view .column-header-background { -fx-background-color: -c-fond; -fx-background-radius: 14 14 0 0; }
+.table-view .column-header, .table-view .filler { -fx-background-color: transparent; -fx-size: 42px; -fx-border-color: transparent; }
+.table-view .column-header .label { -fx-text-fill: #374151; -fx-font-family: "Poppins SemiBold", "Poppins", sans-serif; -fx-font-size: 13px; }
+.table-row-cell { -fx-cell-size: 40px; -fx-table-cell-border-color: transparent; }
+.table-row-cell:odd { -fx-background-color: #fafbfa; }
+.table-row-cell:hover { -fx-background-color: -c-vert-50; }
+.table-row-cell:selected { -fx-background-color: -c-vert-100; }
+.table-row-cell:selected .table-cell { -fx-text-fill: -c-vert-800; }
+
+/* ------------------------------ Page d'accueil : sections ------------------------------ */
+.bande-stats {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-padding: 22 30 22 30;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.18), 26, 0, 0, 8);
+}
+.bande-stats-valeur { -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-font-size: 26px; -fx-text-fill: -c-vert-600; }
+.bande-stats-libelle { -fx-text-fill: -c-gris; -fx-font-size: 13px; }
+
+.etape-num {
+    -fx-background-color: linear-gradient(to bottom, -c-vert-500, -c-vert-700);
+    -fx-background-radius: 30;
+    -fx-min-width: 34; -fx-min-height: 34; -fx-pref-width: 34; -fx-pref-height: 34;
+    -fx-alignment: CENTER;
+}
+.etape-num-texte { -fx-text-fill: white; -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-font-size: 15px; }
+
+.type-fonds  { -fx-border-color: -c-vert-600 transparent transparent transparent; -fx-border-width: 5 0 0 0; -fx-border-radius: 16; }
+.type-tour   { -fx-border-color: -c-or transparent transparent transparent; -fx-border-width: 5 0 0 0; -fx-border-radius: 16; }
+.type-tirage { -fx-border-color: -c-teal transparent transparent transparent; -fx-border-width: 5 0 0 0; -fx-border-radius: 16; }
+
+.cta-bande {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -c-vert-800 0%, -c-vert-600 100%);
+    -fx-background-radius: 22;
+    -fx-padding: 40 44 40 44;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.30), 24, 0, 0, 8);
+}
+.compact .cta-bande { -fx-padding: 26 20 26 20; }
+.cta-titre { -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-text-fill: white; -fx-font-size: 26px; }
+.compact .cta-titre { -fx-font-size: 20px; }
+.cta-texte { -fx-text-fill: #d6ecdd; }
+
+.pied-page { -fx-background-color: -c-vert-900; -fx-padding: 26 40 26 40; }
+.pied-page .label { -fx-text-fill: #9fc9ae; -fx-font-size: 12px; }
+.compact .pied-page { -fx-padding: 20 16 20 16; }
+
+/* ------------------------------ Connexion / inscription ------------------------------ */
+.panneau-marque {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, -c-vert-900 0%, -c-vert-700 60%, -c-vert-500 100%);
+    -fx-padding: 44 40 44 40;
+}
+.marque-titre { -fx-font-family: "Poppins Bold", "Poppins", sans-serif; -fx-text-fill: white; -fx-font-size: 30px; -fx-line-spacing: 2; }
+.marque-texte { -fx-text-fill: #d6ecdd; -fx-font-size: 14px; -fx-line-spacing: 3; }
+.marque-point .label { -fx-text-fill: #e9f7ee; }
+.auth-fond { -fx-background-color: -c-fond; }
+.auth-carte {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 34;
+    -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.14), 26, 0, 0, 8);
+}
+.compact .auth-carte { -fx-padding: 22; }
+
+/* ---- visionneuse de piece d'identite ---- */
+.vignette-piece {
+    -fx-background-color: white;
+    -fx-border-color: -c-bordure;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 1;
+}
+.vignette-piece:hover { -fx-effect: dropshadow(gaussian, rgba(15,61,34,0.30), 10, 0, 0, 2); }
+.vignette-texte { -fx-text-fill: #6b7a72; -fx-font-size: 11px; -fx-text-alignment: center; }
+.visionneuse-fond { -fx-background: #e9eeea; -fx-background-color: #e9eeea; }
+.visionneuse-info { -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #0f3d22; }

@@ -16,6 +16,8 @@ public final class Nav {
 
     private static Stage stage;
     private static Scene scene;
+    private static double largeur = 1180;
+    private static double hauteur = 760;
     private static Boolean reponseAutomatique; // uniquement pour les tests automatiques
 
     private Nav() {
@@ -25,6 +27,13 @@ public final class Nav {
         stage = s;
     }
 
+    /** Memorise la taille initiale de la fenetre (calculee d'apres la taille de l'ecran). */
+    static void init(Stage s, double l, double h) {
+        stage = s;
+        largeur = l;
+        hauteur = h;
+    }
+
     public static Stage getStage() {
         return stage;
     }
@@ -32,17 +41,18 @@ public final class Nav {
     /** Affiche un ecran dans la fenetre principale. */
     public static void aller(Parent racine) {
         if (scene == null) {
-            scene = new Scene(racine, 1180, 760);
+            scene = new Scene(racine, largeur, hauteur);
             URL css = Nav.class.getResource("style.css");
             if (css != null) {
                 scene.getStylesheets().add(css.toExternalForm());
             } else {
-                System.err.println("ATTENTION : style.css introuvable (il doit etre dans le package com.tontine.ui).");
+                System.err.println("ATTENTION : style.css introuvable (il doit \u00eatre dans le package com.tontine.ui).");
             }
             stage.setScene(scene);
         } else {
             scene.setRoot(racine);
         }
+        Effets.fondu(racine);
     }
 
     public static void info(String titre, String message) {

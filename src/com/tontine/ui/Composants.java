@@ -1,6 +1,7 @@
 package com.tontine.ui;
 
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,6 +10,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 /** Petits elements d'interface reutilises par tous les ecrans. */
@@ -114,6 +116,67 @@ public final class Composants {
     /** Champ avec son etiquette au-dessus. */
     public static VBox champ(String libelle, Node saisie) {
         VBox v = new VBox(5, etiquette(libelle), saisie);
+        return v;
+    }
+
+    private static final String[] COULEURS_AVATAR = { "#166534", "#b88a12", "#0f766e", "#6d28d9", "#be185d", "#1d4ed8" };
+
+    /** Pastille ronde avec les initiales (couleur stable pour un meme nom). */
+    public static Node avatar(String nomComplet, double taille) {
+        String nom = nomComplet == null ? "" : nomComplet.trim();
+        String[] mots = nom.isEmpty() ? new String[0] : nom.split("\\s+");
+        String initiales = mots.length == 0 ? "?" : mots.length == 1 ? mots[0].substring(0, 1)
+                : mots[0].substring(0, 1) + mots[mots.length - 1].substring(0, 1);
+        Circle rond = new Circle(taille / 2);
+        rond.setFill(Color.web(COULEURS_AVATAR[Math.abs(nom.hashCode()) % COULEURS_AVATAR.length]));
+        Label l = new Label(initiales.toUpperCase());
+        l.getStyleClass().add("avatar-lettre");
+        l.setStyle("-fx-font-size: " + Math.max(10, Math.round(taille * 0.38)) + "px;");
+        return new StackPane(rond, l);
+    }
+
+    /** Icone dans un cercle colore : variante "vert", "or" ou "teal". */
+    public static Node iconeRonde(String icone, String variante) {
+        Node ic = Icones.icone(icone, 22);
+        if ("or".equals(variante)) {
+            ((Group) ic).getChildren().forEach(n -> n.getStyleClass().add("icone-or"));
+        } else if ("teal".equals(variante)) {
+            ((Group) ic).getChildren().forEach(n -> n.getStyleClass().add("icone-teal"));
+        }
+        StackPane s = new StackPane(ic);
+        s.getStyleClass().add("or".equals(variante) ? "icone-rond-or" : "teal".equals(variante) ? "icone-rond-teal" : "icone-rond");
+        s.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        return s;
+    }
+
+    /** Bandeau de bienvenue en degrade, avec des actions facultatives a droite. */
+    public static HBox banniere(String titre, String texte, Node... actions) {
+        Label t = new Label(titre);
+        t.getStyleClass().add("banniere-titre");
+        t.setWrapText(true);
+        Label d = new Label(texte);
+        d.getStyleClass().add("banniere-texte");
+        d.setWrapText(true);
+        VBox gauche = new VBox(6, t, d);
+        HBox h = new HBox(16, gauche, espaceur());
+        h.getChildren().addAll(actions);
+        h.setAlignment(Pos.CENTER_LEFT);
+        h.getStyleClass().add("banniere");
+        return h;
+    }
+
+    /** Etat vide soigne : icone, titre, texte et actions (jamais un ecran blanc). */
+    public static VBox etatVide(String icone, String titre, String texte, Node... actions) {
+        Label t = new Label(titre);
+        t.getStyleClass().add("carte-titre");
+        t.setWrapText(true);
+        Label d = sousTitre(texte);
+        VBox v = new VBox(12, iconeRonde(icone, "vert"), t, d);
+        if (actions.length > 0) {
+            HBox a = new HBox(12, actions);
+            v.getChildren().add(a);
+        }
+        v.getStyleClass().add("etat-vide");
         return v;
     }
 }

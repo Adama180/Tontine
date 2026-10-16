@@ -1,103 +1,346 @@
 package com.tontine.ui;
 
+import java.time.LocalDate;
+
 import com.tontine.model.TypeTontine;
-import com.tontine.service.ConsultationService;
+import com.tontine.service.Format;
 import com.tontine.service.Libelles;
+import com.tontine.service.ResumePublic;
+import com.tontine.service.StatsPubliquesService;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
-/** Page d'accueil publique : presentation de la plateforme (aucun compte necessaire). */
+/** Page d'accueil publique : la premiere impression. Aucune connexion necessaire, s'adapte a la largeur de la fenetre. */
 public class AccueilView extends BorderPane {
+
+    private final java.util.List<Region> sections = new java.util.ArrayList<>();
+    private Region bandeRef;
+    private Region ctaRef;
 
     public AccueilView() {
         getStyleClass().add("page");
+        setTop(new BarreNavigation());
 
-        Button connexion = Composants.contour("Se connecter");
-        connexion.setOnAction(e -> Nav.aller(new ConnexionView(null)));
-        Button inscription = Composants.primaire("Cr\u00e9er un compte");
-        inscription.setOnAction(e -> Nav.aller(new InscriptionView()));
-        Button explorerBarre = Composants.contour("Explorer les tontines");
-        explorerBarre.setOnAction(e -> Nav.aller(PagePublique.explorer()));
-        HBox barre = new HBox(12, Composants.logo(false), Composants.espaceur(), explorerBarre, connexion, inscription);
-        barre.setAlignment(Pos.CENTER_LEFT);
-        barre.getStyleClass().add("navbar");
-        setTop(barre);
-
-        // ---- bandeau principal
-        Label titre = new Label("Vos tontines, en toute transparence.");
-        titre.getStyleClass().add("hero-titre");
-        titre.setWrapText(true);
-        Label texte = new Label("Fini les cahiers perdus et les erreurs de calcul : suivez les cotisations, les pr\u00eats "
-                + "et les tours de chaque tontine, avec un historique que tous les membres peuvent consulter.");
-        texte.getStyleClass().add("hero-texte");
-        texte.setWrapText(true);
-        texte.setMaxWidth(640);
-        Button commencer = Composants.or("Explorer les tontines");
-        commencer.setOnAction(e -> Nav.aller(PagePublique.explorer()));
-        Button seConnecter = Composants.contourClair("Cr\u00e9er ma propre tontine");
-        seConnecter.setOnAction(e -> Nav.aller(PagePublique.creerTontine()));
-        VBox hero = new VBox(18, titre, texte, new HBox(12, commencer, seConnecter));
-        hero.getStyleClass().add("hero");
-
-        // ---- les trois types de tontines (texte issu du cahier des charges)
-        Label t1 = new Label("Trois types de tontines");
-        t1.getStyleClass().add("titre");
-        HBox types = new HBox(18);
-        for (TypeTontine type : new ConsultationService().listerTypes()) {
-            Label nom = new Label(Libelles.type(type));
-            nom.getStyleClass().add("carte-titre");
-            Label desc = new Label(Libelles.descriptionType(type));
-            desc.setWrapText(true);
-            desc.getStyleClass().add("sous-titre");
-            VBox c = Composants.carte(nom, desc);
-            c.setPrefWidth(300);
-            HBox.setHgrow(c, Priority.ALWAYS);
-            types.getChildren().add(c);
-        }
-
-        // ---- les atouts
-        Label t2 = new Label("Pourquoi NAT Tontines ?");
-        t2.getStyleClass().add("titre");
-        HBox atouts = new HBox(18,
-                atout("Transparence", "Chaque membre consulte l'historique complet de sa tontine : cotisations, pr\u00eats, versements."),
-                atout("S\u00e9curit\u00e9", "Pi\u00e8ce d'identit\u00e9 v\u00e9rifi\u00e9e, adh\u00e9sion valid\u00e9e par le g\u00e9rant, journal d'audit pour l'administrateur."),
-                atout("Paiement simple", "Cotisez par Wave, Orange Money ou en esp\u00e8ces, confirm\u00e9es par le g\u00e9rant."));
-
-        Label pied = new Label("Application de gestion de tontines - projet NAT");
-        pied.getStyleClass().add("pied");
-
-        VBox section = new VBox(18, t1, types, spacer(10), t2, atouts, spacer(10), pied);
-        section.setPadding(new Insets(36, 40, 30, 40));
-
-        ScrollPane defilement = new ScrollPane(new VBox(hero, section));
+        VBox contenu = new VBox();
+        contenu.getChildren().addAll(hero(), bandeChiffres(), etapes(), types(), atouts(), appelAction(), pied());
+        ScrollPane defilement = new ScrollPane(contenu);
         defilement.setFitToWidth(true);
         defilement.getStyleClass().add("defilement");
         setCenter(defilement);
+
+        Adaptatif.surLargeur(this, 860, etroit -> {
+            Adaptatif.classeCompact(this, etroit);
+            Insets p = etroit ? new Insets(28, 16, 4, 16) : new Insets(44, 48, 8, 48);
+            for (Region r : sections) {
+                r.setPadding(p);
+            }
+            if (bandeRef != null) {
+                VBox.setMargin(bandeRef, etroit ? new Insets(-40, 16, 0, 16) : new Insets(-46, 48, 0, 48));
+            }
+            if (ctaRef != null) {
+                VBox.setMargin(ctaRef, etroit ? new Insets(8, 16, 28, 16) : new Insets(10, 48, 48, 48));
+            }
+        });
     }
 
-    private VBox atout(String titre, String texte) {
+    // ------------------------------------------------------------------ bandeau principal
+
+    private Node hero() {
+        FlowPane puces = new FlowPane(8, 8, puce("Wave et Orange Money"), puce("Historique visible par tous"), puce("Pi\u00e8ce d'identit\u00e9 v\u00e9rifi\u00e9e"));
+
+        Label l1 = new Label("Vos tontines,");
+        l1.getStyleClass().add("hero-titre");
+        Label l2 = new Label("en toute transparence.");
+        l2.getStyleClass().add("hero-titre-accent");
+        VBox titre = new VBox(0, l1, l2);
+
+        Label texte = new Label("Fini les cahiers perdus et les erreurs de calcul : suivez les cotisations, les pr\u00eats et les tours "
+                + "de chaque tontine, avec un historique que chaque membre peut consulter.");
+        texte.getStyleClass().add("hero-texte");
+        texte.setWrapText(true);
+
+        Button explorer = Composants.or("Explorer les tontines");
+        explorer.setOnAction(e -> Nav.aller(PagePublique.explorer()));
+        Button creer = Composants.contourClair("Cr\u00e9er ma propre tontine");
+        creer.setOnAction(e -> Nav.aller(PagePublique.creerTontine()));
+        FlowPane actions = new FlowPane(12, 12, explorer, creer);
+
+        FlowPane points = new FlowPane(22, 8, point("Gratuit \u00e0 explorer, sans compte"), point("Valid\u00e9 par un g\u00e9rant"));
+
+        VBox gauche = new VBox(20, puces, titre, texte, actions, points);
+        gauche.setPrefWidth(520);
+        gauche.setMaxWidth(560);
+
+        FlowPane ligne = new FlowPane(56, 28, gauche, new Illustration());
+        ligne.setAlignment(Pos.CENTER);
+        ligne.setRowValignment(javafx.geometry.VPos.CENTER);
+        ligne.getStyleClass().add("hero-contenu");
+        ligne.setMinWidth(0);
+
+        // decor : grands cercles translucides, decoupes aux bords du bandeau
+        // le decor ne doit JAMAIS influencer la taille du bandeau (ses cercles suivent la taille du bandeau)
+        Pane decor = new Pane() {
+            @Override
+            protected double computePrefHeight(double largeur) {
+                return 0;
+            }
+
+            @Override
+            protected double computePrefWidth(double hauteur) {
+                return 0;
+            }
+        };
+        decor.setMouseTransparent(true);
+        Circle c1 = new Circle(230, Color.web("#ffffff", 0.05));
+        c1.centerXProperty().bind(decor.widthProperty().multiply(0.95));
+        c1.setCenterY(40);
+        Circle c2 = new Circle(150, Color.web("#d4a017", 0.10));
+        c2.setCenterX(40);
+        c2.centerYProperty().bind(decor.heightProperty().multiply(0.95));
+        Circle c3 = new Circle(60, Color.web("#ffffff", 0.06));
+        c3.centerXProperty().bind(decor.widthProperty().multiply(0.55));
+        c3.centerYProperty().bind(decor.heightProperty().multiply(0.12));
+        decor.getChildren().addAll(c1, c2, c3);
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(decor.widthProperty());
+        clip.heightProperty().bind(decor.heightProperty());
+        decor.setClip(clip);
+
+        StackPane hero = new StackPane(decor, ligne);
+        hero.getStyleClass().add("hero");
+        ligne.prefWrapLengthProperty().bind(javafx.beans.binding.Bindings.max(320, hero.widthProperty().subtract(96)));
+        Effets.apparition(gauche, 0);
+        return hero;
+    }
+
+    private Node puce(String texte) {
+        Label l = new Label(texte);
+        HBox h = new HBox(l);
+        h.getStyleClass().add("hero-puce");
+        return h;
+    }
+
+    private Node point(String texte) {
+        Node ic = Icones.icone("coche", 18);
+        ((Group) ic).getChildren().forEach(n -> n.getStyleClass().add("icone-claire"));
+        HBox h = new HBox(8, ic, new Label(texte));
+        h.setAlignment(Pos.CENTER_LEFT);
+        h.getStyleClass().add("hero-point");
+        return h;
+    }
+
+    // ------------------------------------------------------------------ chiffres de la plateforme
+
+    private Node bandeChiffres() {
+        FlowPane flux = new FlowPane(44, 14);
+        flux.setAlignment(Pos.CENTER);
+        ResumePublic r = null;
+        try {
+            r = new StatsPubliquesService().resume();
+        } catch (RuntimeException e) {
+            // la base est peut-etre indisponible : on affiche l'invitation plutot qu'une erreur
+        }
+        if (r != null && r.getTontinesOuvertes() > 0) {
+            flux.getChildren().addAll(
+                    chiffre(String.valueOf(r.getTontinesOuvertes()), r.getTontinesOuvertes() > 1 ? "tontines ouvertes" : "tontine ouverte"),
+                    chiffre(String.valueOf(r.getMembresActifs()), r.getMembresActifs() > 1 ? "membres actifs" : "membre actif"),
+                    chiffre(Format.montant(r.getTotalVerse()), "d\u00e9j\u00e0 vers\u00e9s aux membres"));
+        } else {
+            Label l = new Label("Soyez parmi les premiers : cr\u00e9ez votre tontine en quelques minutes.");
+            l.getStyleClass().add("carte-titre");
+            l.setWrapText(true);
+            Button b = Composants.primaire("Commencer");
+            b.setOnAction(e -> Nav.aller(PagePublique.creerTontine()));
+            flux.getChildren().addAll(l, b);
+        }
+        flux.setMinWidth(0);
+        StackPane bande = new StackPane(flux);
+        bande.setMinWidth(0);
+        bandeRef = bande;
+        bande.getStyleClass().add("bande-stats");
+        VBox.setMargin(bande, new Insets(-46, 48, 0, 48));
+        Effets.apparition(bande, 150);
+        return bande;
+    }
+
+    private Node chiffre(String valeur, String libelle) {
+        Label v = new Label(valeur);
+        v.getStyleClass().add("bande-stats-valeur");
+        Label l = new Label(libelle);
+        l.getStyleClass().add("bande-stats-libelle");
+        VBox b = new VBox(2, v, l);
+        b.setAlignment(Pos.CENTER);
+        return b;
+    }
+
+    // ------------------------------------------------------------------ comment ca marche
+
+    private Node etapes() {
+        FlowPane cartes = new FlowPane(18, 18,
+                etape(1, "recherche", "Explorez", "Comparez les tontines et leurs r\u00e8gles, sans compte et sans engagement.", 0),
+                etape(2, "personne", "Rejoignez", "Envoyez votre demande avec votre pi\u00e8ce d'identit\u00e9 : le g\u00e9rant la valide.", 90),
+                etape(3, "portefeuille", "Cotisez", "Payez par Wave, Orange Money ou en esp\u00e8ces. Chaque paiement est enregistr\u00e9.", 180),
+                etape(4, "paiement", "Recevez", "Touchez votre cagnotte \u00e0 votre tour ou en fin de cycle, historique \u00e0 l'appui.", 270));
+        cartes.setAlignment(Pos.CENTER);
+        return section("Comment \u00e7a marche ?", "De la d\u00e9couverte \u00e0 la cagnotte, en quatre \u00e9tapes simples.", cartes);
+    }
+
+    private Node etape(int numero, String icone, String titre, String texte, int retard) {
+        Label n = new Label(String.valueOf(numero));
+        n.getStyleClass().add("etape-num-texte");
+        StackPane num = new StackPane(n);
+        num.getStyleClass().add("etape-num");
+        HBox haut = new HBox(12, num, Composants.iconeRonde(icone, "vert"));
+        haut.setAlignment(Pos.CENTER_LEFT);
         Label t = new Label(titre);
-        t.getStyleClass().add("carte-titre-or");
-        Label d = new Label(texte);
-        d.setWrapText(true);
-        d.getStyleClass().add("sous-titre");
-        VBox c = Composants.carte(t, d);
-        c.setPrefWidth(300);
-        HBox.setHgrow(c, Priority.ALWAYS);
+        t.getStyleClass().add("carte-titre");
+        Label d = Composants.sousTitre(texte);
+        VBox c = Composants.carte(haut, t, d);
+        c.getStyleClass().add("carte-survol");
+        c.setPrefWidth(250);
+        c.setMinWidth(220);
+        Effets.apparition(c, retard);
+        Effets.survol(c);
         return c;
     }
 
-    private javafx.scene.layout.Region spacer(double h) {
+    // ------------------------------------------------------------------ les trois types
+
+    private Node types() {
+        FlowPane cartes = new FlowPane(20, 20,
+                typeCarte(TypeTontine.FONDS_COMMUN, "cycle", "vert", "type-fonds",
+                        "\u00c9pargne cumul\u00e9e et pr\u00eats entre membres", "Int\u00e9r\u00eat simple, partag\u00e9 en fin de cycle", 0),
+                typeCarte(TypeTontine.TOUR_DE_ROLE, "echange", "or", "type-tour",
+                        "Montant fixe, identique pour tous", "Ordre des b\u00e9n\u00e9ficiaires, tour anticip\u00e9 possible", 100),
+                typeCarte(TypeTontine.TIRAGE_AU_SORT, "de", "teal", "type-tirage",
+                        "M\u00eame principe, b\u00e9n\u00e9ficiaire tir\u00e9 au sort", "R\u00e9sultat trac\u00e9, jamais modifi\u00e9 en silence", 200));
+        cartes.setAlignment(Pos.CENTER);
+        return section("Trois fa\u00e7ons de tontiner", "Choisissez le fonctionnement qui ressemble \u00e0 votre groupe.", cartes);
+    }
+
+    private Node typeCarte(TypeTontine type, String icone, String variante, String classe, String point1, String point2, int retard) {
+        Label nom = new Label(Libelles.type(type));
+        nom.getStyleClass().add("carte-titre");
+        Label desc = Composants.sousTitre(Libelles.descriptionType(type));
+        Button voir = Composants.contour("Voir les tontines");
+        voir.setOnAction(e -> Nav.aller(PagePublique.explorer()));
+        VBox c = Composants.carte(Composants.iconeRonde(icone, variante), nom, desc, ligneCoche(point1), ligneCoche(point2), voir);
+        c.getStyleClass().addAll("carte-survol", classe);
+        c.setPrefWidth(330);
+        c.setMinWidth(260);
+        Effets.apparition(c, retard);
+        Effets.survol(c);
+        return c;
+    }
+
+    private Node ligneCoche(String texte) {
+        Label l = new Label(texte);
+        l.setWrapText(true);
+        l.getStyleClass().add("sous-titre");
+        HBox h = new HBox(8, Icones.icone("coche", 18), l);
+        h.setAlignment(Pos.TOP_LEFT);
+        return h;
+    }
+
+    // ------------------------------------------------------------------ atouts
+
+    private Node atouts() {
+        FlowPane cartes = new FlowPane(18, 18,
+                atout("visible", "Transparence", "Chaque membre consulte l'historique complet de sa tontine : cotisations, pr\u00eats, versements.", "vert"),
+                atout("bouclier", "S\u00e9curit\u00e9", "Pi\u00e8ce d'identit\u00e9 v\u00e9rifi\u00e9e, adh\u00e9sion valid\u00e9e par le g\u00e9rant, journal d'audit.", "or"),
+                atout("paiement", "Paiement simple", "Wave, Orange Money ou esp\u00e8ces confirm\u00e9es par le g\u00e9rant.", "teal"),
+                atout("cloche", "Toujours inform\u00e9", "Notifications \u00e0 chaque demande, cotisation, pr\u00eat ou versement.", "vert"));
+        cartes.setAlignment(Pos.CENTER);
+        return section("Pourquoi NAT Tontines ?", "Pens\u00e9 pour la confiance entre membres.", cartes);
+    }
+
+    private Node atout(String icone, String titre, String texte, String variante) {
+        Label t = new Label(titre);
+        t.getStyleClass().add("carte-titre");
+        Label d = Composants.sousTitre(texte);
+        VBox c = Composants.carte(Composants.iconeRonde(icone, variante), t, d);
+        c.getStyleClass().add("carte-survol");
+        c.setPrefWidth(250);
+        c.setMinWidth(220);
+        Effets.apparition(c, 0);
+        Effets.survol(c);
+        return c;
+    }
+
+    // ------------------------------------------------------------------ appel a l'action et pied de page
+
+    private Node appelAction() {
+        Label t = new Label("Pr\u00eat \u00e0 lancer votre tontine ?");
+        t.getStyleClass().add("cta-titre");
+        t.setWrapText(true);
+        Label d = new Label("Cr\u00e9ez votre compte, d\u00e9posez votre demande : l'administrateur la valide et vous voil\u00e0 g\u00e9rant.");
+        d.getStyleClass().add("cta-texte");
+        d.setWrapText(true);
+        Button creer = Composants.or("Cr\u00e9er ma tontine");
+        creer.setOnAction(e -> Nav.aller(PagePublique.creerTontine()));
+        Button compte = Composants.contourClair("J'ai d\u00e9j\u00e0 un compte");
+        compte.setOnAction(e -> Nav.aller(new ConnexionView(null)));
+        FlowPane actions = new FlowPane(12, 12, creer, compte);
+        VBox texte = new VBox(8, t, d);
+        texte.setPrefWidth(520);
+        FlowPane ligne = new FlowPane(30, 20, texte, actions);
+        ligne.setAlignment(Pos.CENTER_LEFT);
+        ligne.setRowValignment(javafx.geometry.VPos.CENTER);
+        ligne.setMinWidth(0);
+        StackPane bande = new StackPane(ligne);
+        bande.setMinWidth(0);
+        ctaRef = bande;
+        bande.getStyleClass().add("cta-bande");
+        ligne.prefWrapLengthProperty().bind(javafx.beans.binding.Bindings.max(300, bande.widthProperty().subtract(88)));
+        VBox.setMargin(bande, new Insets(10, 48, 48, 48));
+        Effets.apparition(bande, 0);
+        return bande;
+    }
+
+    private Node pied() {
+        Label l = new Label("NAT Tontines \u2014 gestion de tontines  \u00b7  " + LocalDate.now().getYear());
+        HBox h = new HBox(l);
+        h.setAlignment(Pos.CENTER);
+        h.getStyleClass().add("pied-page");
+        return h;
+    }
+
+    // ------------------------------------------------------------------ outils
+
+    private Node section(String titre, String sousTitre, Node contenu) {
+        Label t = new Label(titre);
+        t.getStyleClass().add("section-titre");
+        t.setWrapText(true);
+        Label s = new Label(sousTitre);
+        s.getStyleClass().add("section-sous");
+        s.setWrapText(true);
+        VBox v = new VBox(8, t, s, spacer(14), contenu);
+        v.setPadding(new Insets(44, 48, 8, 48));
+        sections.add(v);
+        VBox.setVgrow(contenu, javafx.scene.layout.Priority.NEVER);
+        return v;
+    }
+
+    private Node spacer(double h) {
         javafx.scene.layout.Region r = new javafx.scene.layout.Region();
         r.setPrefHeight(h);
+        r.setMinHeight(h);
         return r;
     }
 }

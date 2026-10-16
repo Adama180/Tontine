@@ -11,6 +11,7 @@ import com.tontine.service.AdminService;
 import com.tontine.service.Format;
 import com.tontine.service.Libelles;
 
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -47,7 +48,10 @@ public class DemandesCreationAdminPane extends PaneGestion {
                             + "\n" + piece);
             Button voir = Composants.contour("Voir la pi\u00e8ce");
             voir.setDisable(d.getPieceChemin() == null);
-            voir.setOnAction(e -> Fichiers.ouvrir(d.getPieceChemin(), this::erreur));
+            String titrePiece = u == null ? d.getNomSouhaite() : u.getNomComplet();
+            String infoPiece = "Demandeur : " + demandeur;
+            Node vignette = VisionneusePiece.vignette(d.getPieceChemin(), titrePiece, infoPiece, this::erreur);
+            voir.setOnAction(e -> VisionneusePiece.voir(d.getPieceChemin(), titrePiece, infoPiece, this::erreur));
             Button accepter = Composants.primaire("Accepter");
             accepter.setOnAction(e -> action(() -> {
                 if (Nav.confirmer("Cr\u00e9er la tontine \u00ab " + d.getNomSouhaite() + " \u00bb et en nommer le demandeur g\u00e9rant ?")) {
@@ -63,7 +67,7 @@ public class DemandesCreationAdminPane extends PaneGestion {
                     succes("La demande \u00ab " + d.getNomSouhaite() + " \u00bb a \u00e9t\u00e9 refus\u00e9e.");
                 }
             }));
-            getChildren().add(ligne(infos, voir, refuser, accepter));
+            getChildren().add(ligne(infos, vignette, voir, refuser, accepter));
         }
 
         List<DemandeCreation> traitees = service.demandesCreationTraitees(admin.getId());
