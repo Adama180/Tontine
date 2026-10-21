@@ -40,14 +40,29 @@ final class Controles {
         return v;
     }
 
+    /**
+     * Numero de telephone du Senegal. Formats acceptes : 77 123 45 67, +221 77 123 45 67, 00221771234567, 221771234567.
+     * Retourne la forme nationale a 9 chiffres (ex. 771234567). Operateurs : 70, 75, 76, 77, 78 (mobiles) et 30, 33 (fixes).
+     */
     static String telephone(String valeur) {
-        String v = texte(valeur, "telephone").replaceAll("[\\s.-]", "");
-        exiger(v.matches("^\\+?[0-9]{8,15}$"), "Numero de telephone invalide (8 a 15 chiffres).");
+        String v = texte(valeur, "t\u00e9l\u00e9phone").replaceAll("[\\s.\\-()]", "");
+        exiger(v.matches("^\\+?[0-9]+$"), MSG_TEL);
+        if (v.startsWith("+221")) {
+            v = v.substring(4);
+        } else if (v.startsWith("00221")) {
+            v = v.substring(5);
+        } else if (v.startsWith("221") && v.length() == 12) {
+            v = v.substring(3);
+        }
+        exiger(v.matches("^(7[05678]|3[03])[0-9]{7}$"), MSG_TEL);
         return v;
     }
 
+    private static final String MSG_TEL = "Le num\u00e9ro doit \u00eatre un num\u00e9ro du S\u00e9n\u00e9gal (indicatif +221) : "
+            + "9 chiffres commen\u00e7ant par 70, 75, 76, 77, 78, 30 ou 33.";
+
     static void motDePasse(String valeur) {
-        exiger(valeur != null && valeur.length() >= 6, "Le mot de passe doit contenir au moins 6 caracteres.");
+        exiger(valeur != null && valeur.length() >= 6, "Le mot de passe doit contenir au moins 6 caract\u00e8res.");
     }
 
     static double arrondir(double valeur) {
@@ -70,17 +85,17 @@ final class Controles {
 
     static Adhesion adhesionActive(int tontineId, int userId) {
         Adhesion a = ADHESIONS.findByTontineEtUser(tontineId, userId);
-        exiger(a != null && a.getStatut() == StatutAdhesion.ACTIF, "Vous n'etes pas membre de cette tontine.");
+        exiger(a != null && a.getStatut() == StatutAdhesion.ACTIF, "Vous n'\u00eates pas membre de cette tontine.");
         return a;
     }
 
     static void exigerGerant(Tontine t, int userId) {
-        exiger(t.getGerantId() == userId, "Action reservee au gerant de cette tontine.");
+        exiger(t.getGerantId() == userId, "Action r\u00e9serv\u00e9e au g\u00e9rant de cette tontine.");
     }
 
     static void exigerAdmin(int userId) {
         Utilisateur u = utilisateur(userId);
-        exiger(u.isAdmin(), "Action reservee a l'administrateur.");
+        exiger(u.isAdmin(), "Action r\u00e9serv\u00e9e \u00e0 l'administrateur.");
     }
 
     /** Membre actif, gerant ou administrateur : peut consulter la tontine. */
@@ -94,7 +109,7 @@ final class Controles {
 
     static Cycle cycleEnCours(Tontine t) {
         Cycle c = CYCLES.findEnCours(t.getId());
-        exiger(c != null, "Aucun cycle en cours pour cette tontine. Le gerant doit d'abord demarrer un cycle.");
+        exiger(c != null, "Aucun cycle en cours pour cette tontine. Le g\u00e9rant doit d'abord d\u00e9marrer un cycle.");
         return c;
     }
 

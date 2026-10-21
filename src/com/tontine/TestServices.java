@@ -58,7 +58,7 @@ public class TestServices {
     private static int ok = 0;
     private static int ko = 0;
     private static int compteur = 0;
-    private static final long BASE_TEL = 6100000000L;
+    private static final long BASE_TEL = 770000100L;
 
     private static final AuthService auth = new AuthService();
     private static final DemandeService demandes = new DemandeService();
@@ -104,9 +104,16 @@ public class TestServices {
         System.out.println("-- Comptes et demandes --");
         Utilisateur u = inscrire("compte");
         verifier("Inscription d'un utilisateur", u.getId() > 0);
-        erreur("Email deja utilise", () -> auth.inscrire("A", "B", u.getEmail(), "6199999999", "secret1"));
+        erreur("Email deja utilise", () -> auth.inscrire("A", "B", u.getEmail(), "779999999", "secret1"));
         erreur("Telephone deja utilise", () -> auth.inscrire("A", "B", "autre@test.tontine", u.getTelephone(), "secret1"));
-        erreur("Mot de passe trop court", () -> auth.inscrire("A", "B", "court@test.tontine", "6188888888", "123"));
+        erreur("Telephone non senegalais (France)", () -> auth.inscrire("A", "B", "fr@test.tontine", "+33612345678", "secret1"));
+        erreur("Telephone non senegalais (debut 61)", () -> auth.inscrire("A", "B", "fr2@test.tontine", "612345678", "secret1"));
+        erreur("Telephone trop court", () -> auth.inscrire("A", "B", "court2@test.tontine", "77123456", "secret1"));
+        Utilisateur sn = auth.inscrire("Sn", "Test", "sn@test.tontine", "+221 77 555 44 33", "secret1");
+        verifier("Numero +221 enregistre sous forme nationale", "775554433".equals(sn.getTelephone()));
+        verifier("Connexion avec l'indicatif +221", auth.seConnecter("00221 77 555 44 33", "secret1").getId() == sn.getId());
+        erreur("Meme numero ecrit autrement refuse", () -> auth.inscrire("A", "B", "sn2@test.tontine", "77 555 44 33", "secret1"));
+        erreur("Mot de passe trop court", () -> auth.inscrire("A", "B", "court@test.tontine", "778888888", "123"));
         erreur("Connexion avec un mauvais mot de passe", () -> auth.seConnecter(u.getEmail(), "faux"));
         verifier("Connexion par email", auth.seConnecter(u.getEmail(), "secret1").getId() == u.getId());
         verifier("Session memorisee", Session.getUtilisateur() != null && Session.getUtilisateur().getId() == u.getId());

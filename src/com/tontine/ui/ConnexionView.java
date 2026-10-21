@@ -48,6 +48,11 @@ public class ConnexionView extends StackPane {
             }
         });
 
+        Hyperlink oublie = new Hyperlink("Mot de passe oubli\u00e9 ?");
+        oublie.setOnAction(e -> Nav.aller(new MotDePasseOublieView(identifiant.getText())));
+        HBox ligneOubli = new HBox(oublie);
+        ligneOubli.setAlignment(Pos.CENTER_RIGHT);
+
         Hyperlink inscription = new Hyperlink("Pas encore de compte ? Cr\u00e9er un compte");
         inscription.setOnAction(e -> Nav.aller(new InscriptionView()));
         Hyperlink retour = new Hyperlink("\u2190 Retour \u00e0 l'accueil");
@@ -60,6 +65,7 @@ public class ConnexionView extends StackPane {
                 message,
                 Composants.champ("Identifiant", identifiant),
                 Composants.champ("Mot de passe", motDePasse),
+                ligneOubli,
                 valider, inscription, retour);
         carte.getStyleClass().add("auth-carte");
         carte.setMaxWidth(440);

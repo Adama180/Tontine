@@ -23,7 +23,7 @@ public class InscriptionView extends StackPane {
         TextField email = new TextField();
         email.setPromptText("exemple@mail.com");
         TextField telephone = new TextField();
-        telephone.setPromptText("77 000 00 00");
+        telephone.setPromptText("77 123 45 67 (S\u00e9n\u00e9gal, +221)");
         PasswordField mdp = new PasswordField();
         mdp.setPromptText("6 caract\u00e8res minimum");
         PasswordField confirmation = new PasswordField();
