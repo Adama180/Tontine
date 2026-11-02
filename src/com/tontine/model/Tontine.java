@@ -2,7 +2,7 @@ package com.tontine.model;
 
 import java.time.LocalDateTime;
 
-/** Table tontine : les règles définies par le gérant (rien n'est codé en dur). */
+/** Table tontine : les r\u00e8gles d\u00e9finies par le g\u00e9rant (rien n'est cod\u00e9 en dur). */
 public class Tontine {
     private int id;
     private String nom;
@@ -11,10 +11,14 @@ public class Tontine {
     private double montantCotisation;
     private Frequence frequence;
     private int dureeEnCycle;
+    private Double montantMaxCotisation; // fonds commun : montantCotisation = minimum, ceci = maximum
     private double penaliteRetard;
     private int nbMembreMax;
     private Double tauxInteret;
     private Integer dureeMaxPret;
+    private Integer jourCotisation;
+    private Integer moisCotisation;
+    private java.time.LocalTime heureCotisation = java.time.LocalTime.of(23, 59);
     private int tourActuelIndex;
     private int gerantId;
     private StatutTontine statut;
@@ -77,6 +81,14 @@ public class Tontine {
 
     public void setDureeEnCycle(int dureeEnCycle) {
         this.dureeEnCycle = dureeEnCycle;
+    }
+
+    public Double getMontantMaxCotisation() {
+        return montantMaxCotisation;
+    }
+
+    public void setMontantMaxCotisation(Double montantMaxCotisation) {
+        this.montantMaxCotisation = montantMaxCotisation;
     }
 
     public double getPenaliteRetard() {
@@ -158,5 +170,29 @@ public class Tontine {
     @Override
     public String toString() {
         return nom;
+    }
+
+    public Integer getJourCotisation() {
+        return jourCotisation;
+    }
+
+    public void setJourCotisation(Integer jourCotisation) {
+        this.jourCotisation = jourCotisation;
+    }
+
+    public Integer getMoisCotisation() {
+        return moisCotisation;
+    }
+
+    public void setMoisCotisation(Integer moisCotisation) {
+        this.moisCotisation = moisCotisation;
+    }
+
+    public java.time.LocalTime getHeureCotisation() {
+        return heureCotisation == null ? java.time.LocalTime.of(23, 59) : heureCotisation;
+    }
+
+    public void setHeureCotisation(java.time.LocalTime heureCotisation) {
+        this.heureCotisation = heureCotisation;
     }
 }
